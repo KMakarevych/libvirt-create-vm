@@ -2,6 +2,7 @@
 set -e
 
 # === Default Configuration ===
+LIBVIRT_URI="qemu:///system"
 DEFAULT_VM_NAME="vm"
 DEFAULT_USER=$(whoami)
 IMAGE_URL="https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
@@ -58,10 +59,10 @@ DISK_IMAGE="/var/lib/libvirt/images/${VM_NAME}.raw"
 # === Logic: Destroy Mode ===
 if [ "$DESTROY_MODE" = true ]; then
     echo "[!] Target VM: $VM_NAME"
-    if virsh list --all | grep -q " $VM_NAME "; then
+    if virsh -c "$LIBVIRT_URI" list --all | grep -q " $VM_NAME "; then
         echo "[!] Destroying and removing $VM_NAME..."
-        virsh destroy "$VM_NAME" 2>/dev/null || true
-        virsh undefine "$VM_NAME" --remove-all-storage 2>/dev/null || true
+        virsh -c "$LIBVIRT_URI" destroy "$VM_NAME" 2>/dev/null || true
+        virsh -c "$LIBVIRT_URI" undefine "$VM_NAME" --remove-all-storage 2>/dev/null || true
         echo "[✓] VM and storage deleted successfully."
     else
         echo "[!] VM '$VM_NAME' not found. Nothing to destroy."
@@ -136,6 +137,7 @@ fi
 # === Provision VM ===
 echo "[+] Provisioning VM: $VM_NAME (User: $VM_USER)..."
 virt-install \
+  --connect "$LIBVIRT_URI" \
   --name "$VM_NAME" \
   --ram "$RAM_MB" \
   --vcpus "$VCPUS" \
@@ -153,7 +155,7 @@ echo "[✓] VM '$VM_NAME' created successfully."
 echo "[i] Waiting for QEMU Guest Agent to report IP..."
 for i in {1..15}; do
     sleep 5
-    IP=$(virsh domifaddr "$VM_NAME" --source agent 2>/dev/null | awk '$1 ~ /^(eth|enp)/ && /ipv4/ {print $4}' | cut -d/ -f1)
+    IP=$(virsh -c "$LIBVIRT_URI" domifaddr "$VM_NAME" --source agent 2>/dev/null | awk '$1 ~ /^(eth|enp)/ && /ipv4/ {print $4}' | cut -d/ -f1)
     if [ ! -z "$IP" ]; then
         echo "[i] VM IP: $IP"
         exit 0
