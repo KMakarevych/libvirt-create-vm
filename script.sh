@@ -5,7 +5,7 @@ set -e
 DEFAULT_VM_NAME="vm"
 DEFAULT_USER=$(whoami)
 IMAGE_URL="https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
-BASE_IMAGE_QCOW2="/home/gerero/qemu/noble-server-cloudimg-amd64.img"
+BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/noble-server-cloudimg-amd64.img"
 DISK_SIZE="30G"
 RAM_MB=8192
 VCPUS=8
