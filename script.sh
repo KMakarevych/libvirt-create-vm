@@ -58,10 +58,10 @@ DISK_IMAGE="/var/lib/libvirt/images/${VM_NAME}.raw"
 # === Logic: Destroy Mode ===
 if [ "$DESTROY_MODE" = true ]; then
     echo "[!] Target VM: $VM_NAME"
-    if sudo virsh list --all | grep -q " $VM_NAME "; then
+    if virsh list --all | grep -q " $VM_NAME "; then
         echo "[!] Destroying and removing $VM_NAME..."
-        sudo virsh destroy "$VM_NAME" 2>/dev/null || true
-        sudo virsh undefine "$VM_NAME" --remove-all-storage 2>/dev/null || true
+        virsh destroy "$VM_NAME" 2>/dev/null || true
+        virsh undefine "$VM_NAME" --remove-all-storage 2>/dev/null || true
         echo "[✓] VM and storage deleted successfully."
     else
         echo "[!] VM '$VM_NAME' not found. Nothing to destroy."
@@ -125,8 +125,8 @@ fi
 # === Create RAW Disk ===
 if [ ! -f "$DISK_IMAGE" ]; then
     echo "[+] Creating RAW disk for $VM_NAME..."
-    sudo qemu-img convert -f qcow2 -O raw "$BASE_IMAGE_QCOW2" "$DISK_IMAGE"
-    sudo qemu-img resize -f raw "$DISK_IMAGE" "$DISK_SIZE"
+    qemu-img convert -f qcow2 -O raw "$BASE_IMAGE_QCOW2" "$DISK_IMAGE"
+    qemu-img resize -f raw "$DISK_IMAGE" "$DISK_SIZE"
 else
     echo "[!] Disk image already exists: $DISK_IMAGE"
     echo "[!] Use --destroy first if you want to recreate it."
@@ -135,7 +135,7 @@ fi
 
 # === Provision VM ===
 echo "[+] Provisioning VM: $VM_NAME (User: $VM_USER)..."
-sudo virt-install \
+virt-install \
   --name "$VM_NAME" \
   --ram "$RAM_MB" \
   --vcpus "$VCPUS" \
@@ -153,7 +153,7 @@ echo "[✓] VM '$VM_NAME' created successfully."
 echo "[i] Waiting for QEMU Guest Agent to report IP..."
 for i in {1..15}; do
     sleep 5
-    IP=$(sudo virsh domifaddr "$VM_NAME" --source agent 2>/dev/null | awk '$1 ~ /^(eth|enp)/ && /ipv4/ {print $4}' | cut -d/ -f1)
+    IP=$(virsh domifaddr "$VM_NAME" --source agent 2>/dev/null | awk '$1 ~ /^(eth|enp)/ && /ipv4/ {print $4}' | cut -d/ -f1)
     if [ ! -z "$IP" ]; then
         echo "[i] VM IP: $IP"
         exit 0
