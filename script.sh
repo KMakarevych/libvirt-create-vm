@@ -5,9 +5,9 @@ set -e
 LIBVIRT_URI="qemu:///system"
 DEFAULT_VM_NAME="vm"
 DEFAULT_USER=$(whoami)
-IMAGE_URL="https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
-BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/noble-server-cloudimg-amd64.img"
-DISK_SIZE="30G"
+IMAGE_URL="https://yum.oracle.com/templates/OracleLinux/OL9/u7/x86_64/OL9U7_x86_64-kvm-b269.qcow2"
+BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/OL9U7_x86_64-kvm-b269.qcow2"
+DISK_SIZE="50G"
 RAM_MB=8192
 VCPUS=8
 BRIDGE_IF="br0"
