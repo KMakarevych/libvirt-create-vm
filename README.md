@@ -84,7 +84,7 @@ curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/
 
 | Параметр | Значення |
 |----------|----------|
-| Диск | 30 GB (RAW) |
+| Диск | 50 GB (RAW) |
 | RAM | 8192 MB |
 | vCPU | 8 |
 | Bridge | br0 |
