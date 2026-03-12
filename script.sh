@@ -5,8 +5,7 @@ set -e
 LIBVIRT_URI="qemu:///system"
 DEFAULT_VM_NAME="vm"
 DEFAULT_USER=$(whoami)
-IMAGE_URL="https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
-BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/noble-server-cloudimg-amd64.img"
+DEFAULT_OS_FAMILY="deb"
 DISK_SIZE="30G"
 RAM_MB=8192
 VCPUS=8
@@ -23,11 +22,14 @@ usage() {
     echo "  -h, --help           Show this help message and exit"
     echo "  --vmname NAME        Set VM name (default: $DEFAULT_VM_NAME)"
     echo "  --user USERNAME      Set sudo user in VM (default: $DEFAULT_USER)"
+    echo "  --os-family FAMILY   Set OS family: deb (Ubuntu 24.04) or ol (Oracle Linux 9)"
+    echo "                       (default: $DEFAULT_OS_FAMILY)"
     echo "  --destroy            Destroy the specified VM and delete its storage"
     echo "  --genpass            Generate a random password and hash it for cloud-init"
     echo ""
     echo "Examples:"
     echo "  $0 --vmname node-01 --user admin --genpass"
+    echo "  $0 --vmname node-01 --user admin --os-family ol"
     echo "  $0 --vmname node-01 --destroy"
     exit 0
 }
@@ -35,10 +37,11 @@ usage() {
 # === Argument Parsing ===
 VM_NAME=$DEFAULT_VM_NAME
 VM_USER=$DEFAULT_USER
+OS_FAMILY=$DEFAULT_OS_FAMILY
 DESTROY_MODE=false
 GENERATE_PASS=false
 
-PARSED_ARGS=$(getopt -n "$0" -o "h" -l "help,vmname:,user:,destroy,genpass" -- "$@")
+PARSED_ARGS=$(getopt -n "$0" -o "h" -l "help,vmname:,user:,os-family:,destroy,genpass" -- "$@")
 eval set -- "$PARSED_ARGS"
 
 while true; do
@@ -46,12 +49,31 @@ while true; do
         -h|--help) usage ;;
         --vmname) VM_NAME="$2"; shift 2 ;;
         --user) VM_USER="$2"; shift 2 ;;
+        --os-family) OS_FAMILY="$2"; shift 2 ;;
         --destroy) DESTROY_MODE=true; shift ;;
         --genpass) GENERATE_PASS=true; shift ;;
         --) shift; break ;;
         *) break ;;
     esac
 done
+
+# === OS Family Configuration ===
+case "$OS_FAMILY" in
+    deb)
+        IMAGE_URL="https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
+        BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/noble-server-cloudimg-amd64.img"
+        OS_VARIANT="ubuntu24.04"
+        ;;
+    ol)
+        IMAGE_URL="https://yum.oracle.com/templates/OracleLinux/OL9/u5/x86_64/OL9U5_x86_64-kvm-cloud.qcow2"
+        BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/OL9U5_x86_64-kvm-cloud.qcow2"
+        OS_VARIANT="ol9.0"
+        ;;
+    *)
+        echo "[!] Error: Unknown OS family '$OS_FAMILY'. Supported: deb, ol"
+        exit 1
+        ;;
+esac
 
 # Derived path
 DISK_IMAGE="/var/lib/libvirt/images/${VM_NAME}.raw"
@@ -90,13 +112,19 @@ METADATA_TMP=$(mktemp /tmp/meta-data.XXXXXX)
 trap 'rm -f "$USERDATA_TMP" "$METADATA_TMP"' EXIT
 
 # === Generate Cloud-Init Data ===
+if [ "$OS_FAMILY" = "deb" ]; then
+    USER_GROUPS="sudo"
+else
+    USER_GROUPS="wheel"
+fi
+
 cat <<EOF > "$USERDATA_TMP"
 #cloud-config
 hostname: ${VM_NAME}
 users:
   - name: ${VM_USER}
     sudo: ALL=(ALL) NOPASSWD:ALL
-    groups: sudo
+    groups: ${USER_GROUPS}
     shell: /bin/bash
     ssh-authorized-keys:
       - ${SSH_KEY}
@@ -119,7 +147,7 @@ EOF
 
 # === Prepare Base Image ===
 if [ ! -f "$BASE_IMAGE_QCOW2" ]; then
-    echo "[+] Downloading Ubuntu cloud image..."
+    echo "[+] Downloading cloud image ($OS_FAMILY)..."
     wget -O "$BASE_IMAGE_QCOW2" "$IMAGE_URL"
 fi
 
@@ -141,7 +169,7 @@ virt-install \
   --name "$VM_NAME" \
   --ram "$RAM_MB" \
   --vcpus "$VCPUS" \
-  --os-variant ubuntu24.04 \
+  --os-variant "$OS_VARIANT" \
   --import \
   --disk path="$DISK_IMAGE",format=raw,bus=virtio,cache=none,io=native \
   --network bridge="$BRIDGE_IF",model=virtio \

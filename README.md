@@ -1,10 +1,11 @@
 # libvirt-create-vm
 
-Скрипт для швидкого створення віртуальних машин Ubuntu на базі libvirt/QEMU з автоматичним налаштуванням через cloud-init.
+Скрипт для швидкого створення віртуальних машин Ubuntu та Oracle Linux на базі libvirt/QEMU з автоматичним налаштуванням через cloud-init.
 
 ## Можливості
 
-- Автоматичне завантаження Ubuntu Cloud Image (Noble 24.04)
+- Підтримка Ubuntu 24.04 (Noble) та Oracle Linux 9
+- Автоматичне завантаження Cloud Image для обраної ОС
 - Налаштування користувача з SSH-ключем та паролем
 - Автоматична установка Docker
 - Налаштування QEMU Guest Agent для отримання IP-адреси
@@ -34,8 +35,11 @@ cd libvirt-create-vm
 # Зробити скрипт виконуваним
 chmod +x script.sh
 
-# Створити VM з назвою "node-01" та користувачем "admin"
+# Створити Ubuntu VM з назвою "node-01" та користувачем "admin"
 ./script.sh --vmname node-01 --user admin
+
+# Створити Oracle Linux 9 VM
+./script.sh --vmname node-01 --user admin --os-family ol
 
 # Створити VM з генерацією нового пароля
 ./script.sh --vmname node-01 --user admin --genpass
@@ -50,8 +54,11 @@ chmod +x script.sh
 # Створити VM з параметрами за замовчуванням
 curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash
 
-# Створити VM з власними параметрами
+# Створити Ubuntu VM з власними параметрами
 curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash -s -- --vmname node-01 --user admin
+
+# Створити Oracle Linux 9 VM
+curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash -s -- --vmname node-01 --user admin --os-family ol
 
 # Створити VM з генерацією пароля
 curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash -s -- --vmname node-01 --user admin --genpass
@@ -66,6 +73,7 @@ curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/
 |----------|------|------------------|
 | `--vmname NAME` | Назва віртуальної машини | `vm` |
 | `--user USERNAME` | Ім'я sudo-користувача у VM | поточний користувач |
+| `--os-family FAMILY` | Сімейство ОС: `deb` (Ubuntu) або `ol` (Oracle Linux) | `deb` |
 | `--destroy` | Знищити VM та видалити диск | - |
 | `--genpass` | Згенерувати випадковий пароль | - |
 | `-h, --help` | Показати довідку | - |
@@ -80,7 +88,7 @@ curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/
 | RAM | 8192 MB |
 | vCPU | 8 |
 | Bridge | br0 |
-| ОС | Ubuntu 24.04 (Noble) |
+| ОС | Ubuntu 24.04 (Noble) / Oracle Linux 9 |
 
 ## Приклади
 
