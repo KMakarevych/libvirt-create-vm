@@ -65,8 +65,8 @@ case "$OS_FAMILY" in
         OS_VARIANT="ubuntu24.04"
         ;;
     ol)
-        IMAGE_URL="https://yum.oracle.com/templates/OracleLinux/OL9/u5/x86_64/OL9U5_x86_64-kvm-cloud.qcow2"
-        BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/OL9U5_x86_64-kvm-cloud.qcow2"
+        IMAGE_URL="https://yum.oracle.com/templates/OracleLinux/OL9/u7/x86_64/OL9U7_x86_64-kvm-b269.qcow2"
+        BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/OL9U7_x86_64-kvm-b269.qcow2"
         OS_VARIANT="ol9.0"
         ;;
     *)
