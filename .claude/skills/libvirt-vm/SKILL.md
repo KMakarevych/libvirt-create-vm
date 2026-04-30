@@ -22,24 +22,32 @@ Create and manage Ubuntu 24.04 VMs using libvirt/QEMU with cloud-init automation
 |--------|-------------|
 | `--vmname NAME` | VM name (default: "vm") |
 | `--user USERNAME` | Sudo user in VM (default: current user) |
+| `--os-family FAMILY` | OS family: `deb` (Ubuntu 24.04), `ol7`, `ol8`, `ol9` (default: `deb`) |
 | `--destroy` | Remove VM and associated disk |
 | `--genpass` | Generate random password |
 | `-h, --help` | Display help |
 
 ## Default VM Specs
 
-- **Disk:** 30GB (RAW format)
+- **Disk:** 50GB (RAW format)
 - **RAM:** 8192 MB
 - **vCPU:** 8 cores
 - **Bridge:** br0
-- **OS:** Ubuntu 24.04 Noble
+- **OS:** Ubuntu 24.04 Noble (default), Oracle Linux 7/8/9 supported
 - **Extras:** Docker pre-installed, QEMU Guest Agent enabled
 
 ## Commands
 
-### Create VM
+### Create VM (Ubuntu 24.04)
 ```bash
 curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash -s -- --vmname <name> --user <username>
+```
+
+### Create VM (Oracle Linux)
+```bash
+curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash -s -- --vmname <name> --user <username> --os-family ol9
+curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash -s -- --vmname <name> --user <username> --os-family ol8
+curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash -s -- --vmname <name> --user <username> --os-family ol7
 ```
 
 ### Create VM with Random Password
@@ -66,7 +74,7 @@ virsh list --all
 
 When the user invokes this skill:
 
-1. **For VM creation:** Ask for VM name and username if not provided, then execute the curl command
+1. **For VM creation:** Ask for VM name, username, and OS family (default `deb`) if not provided, then execute the curl command
 2. **For VM destruction:** Confirm the VM name, then execute with `--destroy` flag
 3. **After creation:** Use `virsh domifaddr <vmname>` to retrieve and display the IP address
 4. **For status checks:** Use `virsh list --all` or `virsh dominfo <vmname>`
@@ -201,6 +209,7 @@ Use this exact format with Unicode box-drawing characters:
 ### VM Creation Workflow:
 - [ ] Get VM name from user
 - [ ] Get username from user
+- [ ] Get OS family from user (default: `deb`)
 - [ ] Execute creation script
 - [ ] Wait for IP address (up to 60 seconds)
 - [ ] Read my.conf file
