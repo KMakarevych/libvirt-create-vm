@@ -22,14 +22,17 @@ usage() {
     echo "  -h, --help           Show this help message and exit"
     echo "  --vmname NAME        Set VM name (default: $DEFAULT_VM_NAME)"
     echo "  --user USERNAME      Set sudo user in VM (default: $DEFAULT_USER)"
-    echo "  --os-family FAMILY   Set OS family: deb (Ubuntu 24.04) or ol (Oracle Linux 9)"
+    echo "  --os-family FAMILY   Set OS family: deb (Ubuntu 24.04), ol7 (Oracle Linux 7),"
+    echo "                       ol8 (Oracle Linux 8), ol9 (Oracle Linux 9)"
     echo "                       (default: $DEFAULT_OS_FAMILY)"
     echo "  --destroy            Destroy the specified VM and delete its storage"
     echo "  --genpass            Generate a random password and hash it for cloud-init"
     echo ""
     echo "Examples:"
     echo "  $0 --vmname node-01 --user admin --genpass"
-    echo "  $0 --vmname node-01 --user admin --os-family ol"
+    echo "  $0 --vmname node-01 --user admin --os-family ol9"
+    echo "  $0 --vmname node-01 --user admin --os-family ol8"
+    echo "  $0 --vmname node-01 --user admin --os-family ol7"
     echo "  $0 --vmname node-01 --destroy"
     exit 0
 }
@@ -64,13 +67,23 @@ case "$OS_FAMILY" in
         BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/noble-server-cloudimg-amd64.img"
         OS_VARIANT="ubuntu24.04"
         ;;
-    ol)
+    ol7)
+        IMAGE_URL="https://yum.oracle.com/templates/OracleLinux/OL7/u9/x86_64/OL7U9_x86_64-kvm-b273.qcow2"
+        BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/OL7U9_x86_64-kvm-b273.qcow2"
+        OS_VARIANT="ol7.0"
+        ;;
+    ol8)
+        IMAGE_URL="https://yum.oracle.com/templates/OracleLinux/OL8/u10/x86_64/OL8U10_x86_64-kvm-b234.qcow2"
+        BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/OL8U10_x86_64-kvm-b234.qcow2"
+        OS_VARIANT="ol8.0"
+        ;;
+    ol9)
         IMAGE_URL="https://yum.oracle.com/templates/OracleLinux/OL9/u7/x86_64/OL9U7_x86_64-kvm-b269.qcow2"
         BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/OL9U7_x86_64-kvm-b269.qcow2"
         OS_VARIANT="ol9.0"
         ;;
     *)
-        echo "[!] Error: Unknown OS family '$OS_FAMILY'. Supported: deb, ol"
+        echo "[!] Error: Unknown OS family '$OS_FAMILY'. Supported: deb, ol7, ol8, ol9"
         exit 1
         ;;
 esac
@@ -115,7 +128,7 @@ trap 'rm -f "$USERDATA_TMP" "$METADATA_TMP"' EXIT
 if [ "$OS_FAMILY" = "deb" ]; then
     USER_GROUPS="sudo"
 else
-    USER_GROUPS="wheel"
+    USER_GROUPS="wheel"  # ol7/ol8/ol9 use wheel
 fi
 
 cat <<EOF > "$USERDATA_TMP"
