@@ -68,13 +68,13 @@ case "$OS_FAMILY" in
         OS_VARIANT="ubuntu24.04"
         ;;
     ol7)
-        IMAGE_URL="https://yum.oracle.com/templates/OracleLinux/OL7/u9/x86_64/OL7U9_x86_64-kvm-b273.qcow2"
-        BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/OL7U9_x86_64-kvm-b273.qcow2"
+        IMAGE_URL="https://yum.oracle.com/templates/OracleLinux/OL7/u9/x86_64/OL7U9_x86_64-kvm-b257.qcow2"
+        BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/OL7U9_x86_64-kvm-b257.qcow2"
         OS_VARIANT="ol7.0"
         ;;
     ol8)
-        IMAGE_URL="https://yum.oracle.com/templates/OracleLinux/OL8/u10/x86_64/OL8U10_x86_64-kvm-b234.qcow2"
-        BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/OL8U10_x86_64-kvm-b234.qcow2"
+        IMAGE_URL="https://yum.oracle.com/templates/OracleLinux/OL8/u10/x86_64/OL8U10_x86_64-kvm-b271.qcow2"
+        BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/OL8U10_x86_64-kvm-b271.qcow2"
         OS_VARIANT="ol8.0"
         ;;
     ol9)
