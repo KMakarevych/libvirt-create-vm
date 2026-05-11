@@ -23,7 +23,8 @@ usage() {
     echo "  --vmname NAME        Set VM name (default: $DEFAULT_VM_NAME)"
     echo "  --user USERNAME      Set sudo user in VM (default: $DEFAULT_USER)"
     echo "  --os-family FAMILY   Set OS family: deb (Ubuntu 24.04), ol7 (Oracle Linux 7),"
-    echo "                       ol8 (Oracle Linux 8), ol9 (Oracle Linux 9)"
+    echo "                       ol8 (Oracle Linux 8), ol9 (Oracle Linux 9),"
+    echo "                       arch (Arch Linux)"
     echo "                       (default: $DEFAULT_OS_FAMILY)"
     echo "  --destroy            Destroy the specified VM and delete its storage"
     echo "  --genpass            Generate a random password and hash it for cloud-init"
@@ -33,6 +34,7 @@ usage() {
     echo "  $0 --vmname node-01 --user admin --os-family ol9"
     echo "  $0 --vmname node-01 --user admin --os-family ol8"
     echo "  $0 --vmname node-01 --user admin --os-family ol7"
+    echo "  $0 --vmname node-01 --user admin --os-family arch"
     echo "  $0 --vmname node-01 --destroy"
     exit 0
 }
@@ -82,8 +84,13 @@ case "$OS_FAMILY" in
         BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/OL9U7_x86_64-kvm-b269.qcow2"
         OS_VARIANT="ol9.0"
         ;;
+    arch)
+        IMAGE_URL="https://geo.mirror.pkgbuild.com/images/latest/Arch-Linux-x86_64-cloudimg.qcow2"
+        BASE_IMAGE_QCOW2="/home/$(whoami)/qemu/Arch-Linux-x86_64-cloudimg.qcow2"
+        OS_VARIANT="archlinux"
+        ;;
     *)
-        echo "[!] Error: Unknown OS family '$OS_FAMILY'. Supported: deb, ol7, ol8, ol9"
+        echo "[!] Error: Unknown OS family '$OS_FAMILY'. Supported: deb, ol7, ol8, ol9, arch"
         exit 1
         ;;
 esac
@@ -128,7 +135,13 @@ trap 'rm -f "$USERDATA_TMP" "$METADATA_TMP"' EXIT
 if [ "$OS_FAMILY" = "deb" ]; then
     USER_GROUPS="sudo"
 else
-    USER_GROUPS="wheel"  # ol7/ol8/ol9 use wheel
+    USER_GROUPS="wheel"  # ol7/ol8/ol9/arch use wheel
+fi
+
+if [ "$OS_FAMILY" = "arch" ]; then
+    DOCKER_INSTALL_CMD="pacman -S --noconfirm docker"
+else
+    DOCKER_INSTALL_CMD="curl https://get.docker.com | sh -"
 fi
 
 cat <<EOF > "$USERDATA_TMP"
@@ -147,7 +160,7 @@ packages:
   - qemu-guest-agent
 runcmd:
   - systemctl enable --now qemu-guest-agent
-  - curl https://get.docker.com | sh -
+  - ${DOCKER_INSTALL_CMD}
   - systemctl enable --now docker
   - usermod -aG docker ${VM_USER}
   - echo "Welcome to ${VM_NAME}, ${VM_USER}!" > /etc/motd
