@@ -1,10 +1,10 @@
 # libvirt-create-vm
 
-Скрипт для швидкого створення віртуальних машин Ubuntu та Oracle Linux на базі libvirt/QEMU з автоматичним налаштуванням через cloud-init.
+Скрипт для швидкого створення віртуальних машин Ubuntu, Oracle Linux та Arch Linux на базі libvirt/QEMU з автоматичним налаштуванням через cloud-init.
 
 ## Можливості
 
-- Підтримка Ubuntu 24.04 (Noble) та Oracle Linux 7/8/9
+- Підтримка Ubuntu 24.04 (Noble), Oracle Linux 7/8/9 та Arch Linux
 - Автоматичне завантаження Cloud Image для обраної ОС
 - Налаштування користувача з SSH-ключем та паролем
 - Автоматична установка Docker
@@ -44,6 +44,9 @@ chmod +x script.sh
 # Створити Oracle Linux 8 VM
 ./script.sh --vmname node-01 --user admin --os-family ol8
 
+# Створити Arch Linux VM
+./script.sh --vmname node-01 --user admin --os-family arch
+
 # Створити VM з генерацією нового пароля
 ./script.sh --vmname node-01 --user admin --genpass
 
@@ -66,6 +69,9 @@ curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/
 # Створити Oracle Linux 8 VM
 curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash -s -- --vmname node-01 --user admin --os-family ol8
 
+# Створити Arch Linux VM
+curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash -s -- --vmname node-01 --user admin --os-family arch
+
 # Створити VM з генерацією пароля
 curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash -s -- --vmname node-01 --user admin --genpass
 
@@ -79,7 +85,7 @@ curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/
 |----------|------|------------------|
 | `--vmname NAME` | Назва віртуальної машини | `vm` |
 | `--user USERNAME` | Ім'я sudo-користувача у VM | поточний користувач |
-| `--os-family FAMILY` | Сімейство ОС: `deb` (Ubuntu 24.04), `ol7`, `ol8`, `ol9` (Oracle Linux) | `deb` |
+| `--os-family FAMILY` | Сімейство ОС: `deb` (Ubuntu 24.04), `ol7`, `ol8`, `ol9` (Oracle Linux), `arch` (Arch Linux) | `deb` |
 | `--destroy` | Знищити VM та видалити диск | - |
 | `--genpass` | Згенерувати випадковий пароль | - |
 | `-h, --help` | Показати довідку | - |
@@ -94,7 +100,7 @@ curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/
 | RAM | 8192 MB |
 | vCPU | 8 |
 | Bridge | br0 |
-| ОС | Ubuntu 24.04 (Noble) / Oracle Linux 7, 8, 9 |
+| ОС | Ubuntu 24.04 (Noble) / Oracle Linux 7, 8, 9 / Arch Linux |
 
 ## Приклади
 

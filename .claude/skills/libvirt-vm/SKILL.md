@@ -1,11 +1,11 @@
 ---
 name: libvirt-vm
-description: Create and manage Ubuntu virtual machines using libvirt/QEMU with cloud-init automation. Use when user wants to create VMs, destroy VMs, or manage virtual machines.
+description: Create and manage Ubuntu, Oracle Linux, and Arch Linux virtual machines using libvirt/QEMU with cloud-init automation. Use when user wants to create VMs, destroy VMs, or manage virtual machines.
 ---
 
 # libvirt-vm
 
-Create and manage Ubuntu 24.04 VMs using libvirt/QEMU with cloud-init automation.
+Create and manage Ubuntu 24.04, Oracle Linux, and Arch Linux VMs using libvirt/QEMU with cloud-init automation.
 
 ## Context
 
@@ -22,7 +22,7 @@ Create and manage Ubuntu 24.04 VMs using libvirt/QEMU with cloud-init automation
 |--------|-------------|
 | `--vmname NAME` | VM name (default: "vm") |
 | `--user USERNAME` | Sudo user in VM (default: current user) |
-| `--os-family FAMILY` | OS family: `deb` (Ubuntu 24.04), `ol7`, `ol8`, `ol9` (default: `deb`) |
+| `--os-family FAMILY` | OS family: `deb` (Ubuntu 24.04), `ol7`, `ol8`, `ol9` (Oracle Linux), `arch` (Arch Linux) (default: `deb`) |
 | `--destroy` | Remove VM and associated disk |
 | `--genpass` | Generate random password |
 | `-h, --help` | Display help |
@@ -33,7 +33,7 @@ Create and manage Ubuntu 24.04 VMs using libvirt/QEMU with cloud-init automation
 - **RAM:** 8192 MB
 - **vCPU:** 8 cores
 - **Bridge:** br0
-- **OS:** Ubuntu 24.04 Noble (default), Oracle Linux 7/8/9 supported
+- **OS:** Ubuntu 24.04 Noble (default), Oracle Linux 7/8/9, Arch Linux supported
 - **Extras:** Docker pre-installed, QEMU Guest Agent enabled
 
 ## Commands
@@ -48,6 +48,11 @@ curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/
 curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash -s -- --vmname <name> --user <username> --os-family ol9
 curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash -s -- --vmname <name> --user <username> --os-family ol8
 curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash -s -- --vmname <name> --user <username> --os-family ol7
+```
+
+### Create VM (Arch Linux)
+```bash
+curl -fsSL https://raw.githubusercontent.com/KMakarevych/libvirt-create-vm/main/script.sh | bash -s -- --vmname <name> --user <username> --os-family arch
 ```
 
 ### Create VM with Random Password
@@ -74,7 +79,7 @@ virsh list --all
 
 When the user invokes this skill:
 
-1. **For VM creation:** Ask for VM name, username, and OS family (default `deb`) if not provided, then execute the curl command
+1. **For VM creation:** Ask for VM name, username, and OS family (default `deb`; options: `deb`, `ol7`, `ol8`, `ol9`, `arch`) if not provided, then execute the curl command
 2. **For VM destruction:** Confirm the VM name, then execute with `--destroy` flag
 3. **After creation:** Use `virsh domifaddr <vmname>` to retrieve and display the IP address
 4. **For status checks:** Use `virsh list --all` or `virsh dominfo <vmname>`
@@ -209,7 +214,7 @@ Use this exact format with Unicode box-drawing characters:
 ### VM Creation Workflow:
 - [ ] Get VM name from user
 - [ ] Get username from user
-- [ ] Get OS family from user (default: `deb`)
+- [ ] Get OS family from user (default: `deb`; options: `deb`, `ol7`, `ol8`, `ol9`, `arch`)
 - [ ] Execute creation script
 - [ ] Wait for IP address (up to 60 seconds)
 - [ ] Read my.conf file
